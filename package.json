@@ -1,0 +1,26 @@
+{
+  "name": "mern",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/nurullo3313/mernbackend#readme",
+  "bugs": {
+    "url": "https://github.com/nurullo3313/mernbackend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nurullo3313/mernbackend.git"
+  },
+  "license": "ISC",
+  "author": "nurullo3313",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --env-file=.env src/index.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "mongoose": "^9.0.2",
+    "nodemon": "^3.1.11"
+  }
+}
