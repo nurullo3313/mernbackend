@@ -4,11 +4,11 @@ import "dotenv/config"
 const dbName = process.env.DB_NAME
 const dbPassword = process.env.DB_PASSWORD
 
-export default ()=>{
+export default async ()=>{
     try{
-        mongoose.connect(`mongodb+srv://${dbName}:${dbPassword}@cluster0.8btubcs.mongodb.net/`)
-        .then(console.log("База данных работаеть!!"))
+      await  mongoose.connect("mongodb://localhost:27017/")
+        console.log("База данных работаеть!!")
     }catch(error){
-       console.log("Не удалос подключться на базу данных!") 
+       console.log("Не удалос подключться на базу данных!" , error) 
     }
 }
