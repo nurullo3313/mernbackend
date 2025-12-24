@@ -1,3 +1,5 @@
+
+import  jwt  from "jsonwebtoken"
 import User from "../models/User.js"
 import bcrypt from "bcrypt"
 
@@ -21,7 +23,7 @@ export const register = async (req, res) => {
         await user.save()
         return res.status(201).json({
             msg: "зарегистрроваиться успешно прошло!!",
-               user
+            user
         })
 
 
@@ -38,12 +40,46 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const { username, password } = req.body
+        const user = await User.findOne({username})
+
+        if(!user){
+         return  res.status(404).json({msg: "Ползователь не найден!"})
+        }
+
+        const correctPassword = await bcrypt.compare(password , user.password)
+
+        if(!correctPassword){
+            return res.status(401).json({
+                msg: "Не правеный пароли или юзернейм!"
+            })
+        }
+
+        const token = jwt.sign(
+            {
+                id : user._id,
+                username : user.username,
+            },
+            process.env.JWT_SECRET,
+            {expiresIn : "30d"}
+        )
+
+    return  res.status(200).json({
+            user,
+            token,
+            msg : "Вы вошли в систему!!"
+        })
+
+
+
     } catch (error) {
         res.status(500).json({
-            msg: "Ошибка сервера при регстратция"
+            msg: "Ошибка сервера при авторизатция"
         })
     }
 }
+
+
+
 export const getMe = async (req, res) => {
     try {
         const { username, password } = req.body

@@ -6,7 +6,7 @@ const router =  new Router()
 
 
 router.post("/register", register)
-router.post("/lohin", login)
+router.post("/login", login)
 router.get("/me", getMe)
 
 
