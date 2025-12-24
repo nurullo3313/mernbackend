@@ -81,11 +81,34 @@ export const login = async (req, res) => {
 
 
 export const getMe = async (req, res) => {
+
+
+
     try {
-        const { username, password } = req.body
+        const user = await User.findById(req.userId)
+        if(!user){
+           return res.status(404).json({
+            msg : "Юзер не сущетвуеть или не правеный токен!"
+           })
+        }
+        const token = jwt.sign(
+            {
+                id : user._id,
+                username : user.username,
+            },
+            process.env.JWT_SECRET,
+            {expiresIn : "30d"}
+        )
+
+     return   res.status(200).json({
+            
+         user,
+         token
+
+        })
     } catch (error) {
         res.status(500).json({
-            msg: "Ошибка сервера при регстратция"
+            msg: "Токен отсустоваеть!!"
         })
     }
 }
