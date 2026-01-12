@@ -1,4 +1,3 @@
-
 import  jwt  from "jsonwebtoken"
 import User from "../models/User.js"
 import bcrypt from "bcrypt"
@@ -9,7 +8,7 @@ export const register = async (req, res) => {
 
         const existUser = await User.findOne({ username })
         if (existUser) {
-            return res.status(400).json({
+            return res.status(409).json({
                 msg: "Данный имя пользовател уже занять"
             })
         }
@@ -19,18 +18,27 @@ export const register = async (req, res) => {
             username,
             password: hashpassword
         })
+           const token = jwt.sign(
+            {
+                id : user._id,
+                username : user.username,
+            },
+            process.env.JWT_SECRET,
+            {expiresIn : "30d"}
+        )
 
         await user.save()
+
         return res.status(201).json({
-            msg: "зарегистрроваиться успешно прошло!!",
-            user
+            user,
+            token,
+            msg: "реестратция успешно прошло!!",
         })
 
 
 
     } catch (error) {
         res.status(500).json({
-         
             msg: "Не удалось зарегистрроваиться",
         })
     }
