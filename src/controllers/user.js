@@ -1,122 +1,131 @@
-import  jwt  from "jsonwebtoken"
-import User from "../models/User.js"
-import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+import bcrypt from "bcrypt";
+import { validationResult } from "express-validator";
 
 export const register = async (req, res) => {
-    try {
-        const { username, password } = req.body
+  try {
+    const { username, password } = req.body;
 
-        const existUser = await User.findOne({ username })
-        if (existUser) {
-            return res.status(409).json({
-                msg: "Данный имя пользовател уже занять"
-            })
-        }
-        const hashpassword = await bcrypt.hash(password, 10)
+    const errors = validationResult(req);
 
-        const user = new User({
-            username,
-            password: hashpassword
-        })
-           const token = jwt.sign(
-            {
-                id : user._id,
-                username : user.username,
-            },
-            process.env.JWT_SECRET,
-            {expiresIn : "30d"}
-        )
+    if (!errors.isEmpty()) {
+      const formatted = {};
+      errors.array().forEach((e) => {
+        formatted[e.path] = e.msg;
+      });
 
-        await user.save()
-
-        return res.status(201).json({
-            user,
-            token,
-            msg: "реестратция успешно прошло!!",
-        })
-
-
-
-    } catch (error) {
-        res.status(500).json({
-            msg: "Не удалось зарегистрроваиться",
-        })
+      return res.status(400).json({ msg: formatted });
     }
-}
 
+    const existUser = await User.findOne({ username });
+    if (existUser) {
+      return res.status(409).json({
+        msg: "Данный имя пользовател уже занять",
+      });
+    }
+    const hashpassword = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      username,
+      password: hashpassword,
+    });
+    const token = jwt.sign(
+      {
+        id: user._id,
+        username: user.username,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "30d" }
+    );
+
+    await user.save();
+
+    return res.status(201).json({
+      user,
+      token,
+      msg: "реестратция успешно прошло!!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Не удалось зарегистрроваиться",
+    });
+  }
+};
 
 export const login = async (req, res) => {
-    try {
-        const { username, password } = req.body
-        const user = await User.findOne({username})
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
 
-        if(!user){
-         return  res.status(404).json({msg: "Ползователь не найден!"})
-        }
+    const errors = validationResult(req);
 
-        const correctPassword = await bcrypt.compare(password , user.password)
+    if (!errors.isEmpty()) {
+      const formatted = {};
+      errors.array().forEach((e) => {
+        formatted[e.path] = e.msg;
+      });
 
-        if(!correctPassword){
-            return res.status(401).json({
-                msg: "Не правеный пароли или юзернейм!"
-            })
-        }
-
-        const token = jwt.sign(
-            {
-                id : user._id,
-                username : user.username,
-            },
-            process.env.JWT_SECRET,
-            {expiresIn : "30d"}
-        )
-
-    return  res.status(200).json({
-            user,
-            token,
-            msg : "Вы вошли в систему!!"
-        })
-
-
-
-    } catch (error) {
-        res.status(500).json({
-            msg: "Ошибка сервера при авторизатция"
-        })
+      return res.status(400).json({ msg: formatted });
     }
-}
 
+    if (!user) {
+      return res.status(404).json({ msg: "Ползователь не найден!" });
+    }
 
+    const correctPassword = await bcrypt.compare(password, user.password);
+
+    if (!correctPassword) {
+      return res.status(401).json({
+        msg: "Не правеный пароли или юзернейм!",
+      });
+    }
+
+    const token = jwt.sign(
+      {
+        id: user._id,
+        username: user.username,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "30d" }
+    );
+
+    return res.status(200).json({
+      user,
+      token,
+      msg: "Вы вошли в систему!!",
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Ошибка сервера при авторизатция",
+    });
+  }
+};
 
 export const getMe = async (req, res) => {
-
-
-
-    try {
-        const user = await User.findById(req.userId)
-        if(!user){
-           return res.status(404).json({
-            msg : "Юзер не сущетвуеть или не правеный токен!"
-           })
-        }
-        const token = jwt.sign(
-            {
-                id : user._id,
-                username : user.username,
-            },
-            process.env.JWT_SECRET,
-            {expiresIn : "30d"}
-        )
-
-     return   res.status(200).json({
-            
-         user,
-         token
-
-        })
-    } catch (error) {
-        res.status(500).json({
-            msg: "Токен отсустоваеть!!"
-        })
+  try {
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({
+        msg: "Юзер не сущетвуеть или не правеный токен!",
+      });
     }
-}
+    const token = jwt.sign(
+      {
+        id: user._id,
+        username: user.username,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "30d" }
+    );
+
+    return res.status(200).json({
+      user,
+      token,
+    });
+  } catch (error) {
+    res.status(500).json({
+      msg: "Токен отсустоваеть!!",
+    });
+  }
+};
