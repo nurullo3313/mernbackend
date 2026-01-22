@@ -1,8 +1,10 @@
 import mongoose from "mongoose";
 
 
-
-const Posts = new mongoose.Schema({
+const PostSchema = new mongoose.Schema({
+    username : {
+        type: String
+    },
     title:{
         type :String,
         required : true
@@ -16,16 +18,17 @@ const Posts = new mongoose.Schema({
         default : 0
     },
     imgUrl : {
-        typeof :String,
+        type :String,
         default  : ""
     },
     author:{
-        type :mongoose.Schema.Types.ObjectId,
+        type : mongoose.Schema.Types.ObjectId,
         ref : "users"
-    }
+    },
+    comments : [{type:mongoose.Schema.Types.ObjectId , ref :"comment"}]
     
 },
 {timestamps: true}
 )
 
-export default mongoose.model("posts" , Posts)
+export default mongoose.model("posts" , PostSchema)
