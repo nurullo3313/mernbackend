@@ -3,6 +3,7 @@ import 'dotenv/config'
 import db from "./config/db.js"
 import authRouter from "./routes/auth.js"
 import postRouter from "./routes/post.js"
+import commentRouter from "./routes/comment.js"
 import cors from "cors"
 import fileUpload from "express-fileupload"
 import path from "path"
@@ -25,6 +26,7 @@ db()
 
 app.use("/api/auth",authRouter)
 app.use("/api/post",postRouter)
+app.use("/api/comment" , commentRouter)
 
 
 
